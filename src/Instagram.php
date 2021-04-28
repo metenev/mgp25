@@ -984,8 +984,17 @@ class Instagram implements ExperimentsInterface
         $this->internal->logAttribution();
         // We must fetch new token here, because it updates rewrite rules.
         $this->internal->fetchZeroRatingToken();
-        // It must be at the end, because it's called when a user taps on login input.
-        $this->account->setContactPointPrefill('prefill');
+
+        try
+        {
+            // It must be at the end, because it's called when a user taps on login input.
+            // NOTE: This can throw 429 error sometimes
+            $this->account->setContactPointPrefill('prefill');
+        }
+        catch (Exception\ThrottledException $e)
+        {
+            //
+        }
     }
 
     /**

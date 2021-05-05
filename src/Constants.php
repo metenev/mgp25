@@ -8,6 +8,10 @@ class Constants
     const API_URLS = [
         1 => 'https://i.instagram.com/api/v1/',
         2 => 'https://i.instagram.com/api/v2/',
+        // Some additional API URLs
+        3 => 'https://i.instagram.com/',
+		4 => 'https://www.instagram.com/',
+		5 => 'https://help.instagram.com/',
     ];
     const IG_VERSION = '85.0.0.21.100';
     const VERSION_CODE = '146536611';

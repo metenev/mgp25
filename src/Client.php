@@ -191,6 +191,12 @@ class Client
         $this->zeroRating()->update($this->_parent->settings->getRewriteRules());
     }
 
+    public function setUserAgent(
+        $userAgent)
+    {
+        $this->_userAgent = $userAgent;
+    }
+
     /**
      * Loads all cookies via the current Settings storage.
      *

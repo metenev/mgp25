@@ -110,7 +110,7 @@ class Challenge extends RequestCollection
         $phoneNumber)
     {
 	    $response = $this->buildRequest($apiPath)
-			->addPost('phone_number', $phone_number)
+			->addPost('phone_number', $phoneNumber)
             // ->getResponse(new Response\GenericResponse());
 			->getDecodedResponse(true);			
 

@@ -2,6 +2,7 @@
 
 namespace InstagramAPI\Request;
 
+use InstagramAPI\Constants;
 use InstagramAPI\Exception\InternalException;
 use InstagramAPI\Exception\SettingsException;
 use InstagramAPI\Response;
@@ -173,11 +174,27 @@ class Account extends RequestCollection
     public function changeProfilePicture(
         $photoFilename)
     {
+        // We must mark the profile for editing before doing the main request.
+        $userResponse = $this->ig->request('accounts/current_user/')
+            ->addParam('edit', true)
+            ->getResponse(new Response\UserInfoResponse());
+
+        // Get the current user's name from the response.
+        $currentUser = $userResponse->getUser();
+        if (!$currentUser || !is_string($currentUser->getUsername())) {
+            throw new InternalException('Unable to find current account username while preparing profile edit.');
+        }
+
+        // Then we need to upload photo and get an upload ID
+        $uploadResponse = $this->ig->internal->uploadSinglePhoto(Constants::FEED_TIMELINE, $photoFilename);
+
         return $this->ig->request('accounts/change_profile_picture/')
             ->addPost('_csrftoken', $this->ig->client->getToken())
             ->addPost('_uuid', $this->ig->uuid)
-            ->addPost('_uid', $this->ig->account_id)
-            ->addFile('profile_pic', $photoFilename, 'profile_pic')
+            // ->addPost('_uid', $this->ig->account_id)
+            ->addPost('use_fbuploader', 'true')
+            // ->addFile('profile_pic', $photoFilename, 'profile_pic')
+            ->addPost('upload_id', $uploadResponse->getUploadId())
             ->getResponse(new Response\UserInfoResponse());
     }
 

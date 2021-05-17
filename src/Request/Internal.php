@@ -62,7 +62,7 @@ class Internal extends RequestCollection
      * @throws \InstagramAPI\Exception\InstagramException
      * @throws \InstagramAPI\Exception\UploadFailedException
      *
-     * @return \InstagramAPI\Response\ConfigureResponse
+     * @return \InstagramAPI\Response\ResumableUploadResponse
      *
      * @see Internal::configureSinglePhoto() for available metadata fields.
      */
@@ -98,12 +98,12 @@ class Internal extends RequestCollection
         }
 
         // Perform the upload.
-        $this->uploadPhotoData($targetFeed, $internalMetadata);
+        return $this->uploadPhotoData($targetFeed, $internalMetadata);
 
         // Configure the uploaded image and attach it to our timeline/story.
-        $configure = $this->configureSinglePhoto($targetFeed, $internalMetadata, $externalMetadata);
+        // $configure = $this->configureSinglePhoto($targetFeed, $internalMetadata, $externalMetadata);
 
-        return $configure;
+        // return $configure;
     }
 
     /**
@@ -115,6 +115,8 @@ class Internal extends RequestCollection
      * @throws \InvalidArgumentException
      * @throws \InstagramAPI\Exception\InstagramException
      * @throws \InstagramAPI\Exception\UploadFailedException
+     * 
+     * @return \InstagramAPI\Response\ResumableUploadResponse
      */
     public function uploadPhotoData(
         $targetFeed,
@@ -133,7 +135,7 @@ class Internal extends RequestCollection
         try {
             // Upload photo file with one of our photo uploaders.
             if ($this->_useResumablePhotoUploader($targetFeed, $internalMetadata)) {
-                $this->_uploadResumablePhoto($targetFeed, $internalMetadata);
+                return $this->_uploadResumablePhoto($targetFeed, $internalMetadata);
             } else {
                 $internalMetadata->setPhotoUploadResponse(
                     $this->_uploadPhotoInOnePiece($targetFeed, $internalMetadata)
@@ -1664,7 +1666,7 @@ class Internal extends RequestCollection
      * @throws \LogicException
      * @throws \InstagramAPI\Exception\InstagramException
      *
-     * @return \InstagramAPI\Response\GenericResponse
+     * @return \InstagramAPI\Response\ResumableUploadResponse
      */
     protected function _uploadResumablePhoto(
         $targetFeed,
@@ -1716,7 +1718,7 @@ class Internal extends RequestCollection
         $targetFeed,
         InternalMetadata $internalMetadata)
     {
-        switch ($targetFeed) {
+        /*switch ($targetFeed) {
             case Constants::FEED_TIMELINE_ALBUM:
                 $result = $this->ig->isExperimentEnabled(
                     'ig_android_sidecar_photo_fbupload_universe',
@@ -1728,7 +1730,9 @@ class Internal extends RequestCollection
                     'is_enabled_fbupload_photo');
         }
 
-        return $result;
+        return $result;*/
+
+        return true;
     }
 
     /**

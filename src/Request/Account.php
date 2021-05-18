@@ -179,7 +179,7 @@ class Account extends RequestCollection
             ->addParam('edit', true)
             ->getResponse(new Response\UserInfoResponse());
 
-        // Get the current user's name from the response.
+        // Check the current user (we should load the profile info before we can edit it)
         $currentUser = $userResponse->getUser();
         if (!$currentUser || !is_string($currentUser->getUsername())) {
             throw new InternalException('Unable to find current account username while preparing profile edit.');

@@ -69,7 +69,7 @@ class Internal extends RequestCollection
     public function uploadSinglePhoto(
         $targetFeed,
         $photoFilename,
-        InternalMetadata $internalMetadata = null,
+        InternalMetadata &$internalMetadata = null,
         array $externalMetadata = [])
     {
         // Make sure we only allow these particular feeds for this function.
@@ -249,6 +249,10 @@ class Internal extends RequestCollection
             ->addPost('_csrftoken', $this->ig->client->getToken())
             ->addPost('_uid', $this->ig->account_id)
             ->addPost('_uuid', $this->ig->uuid)
+            ->addPost('device_id', $this->ig->device_id)
+            ->addPost('multi_sharing', '1')
+            ->addPost('suggested_venue_position', -1)
+            ->addPost('is_suggested_venue', false)
             ->addPost('edits',
                 [
                     'crop_original_size'    => [(float) $photoWidth, (float) $photoHeight],
@@ -270,14 +274,14 @@ class Internal extends RequestCollection
 
         switch ($targetFeed) {
             case Constants::FEED_TIMELINE:
-                $date = date('Y:m:d H:i:s');
+                // $date = date('Y:m:d H:i:s');
                 $request
-                    ->addParam('timezone_offset', date('Z'))
-                    ->addPost('date_time_original', $date)
-                    ->addPost('date_time_digitalized', $date)
+                    ->addPost('timezone_offset', date('Z'))
+                    // ->addPost('date_time_original', $date)
+                    // ->addPost('date_time_digitalized', $date)
                     ->addPost('caption', $captionText)
                     ->addPost('source_type', '4')
-                    ->addPost('media_folder', 'Camera')
+                    // ->addPost('media_folder', 'Camera')
                     ->addPost('upload_id', $uploadId);
 
                 if ($usertags !== null) {

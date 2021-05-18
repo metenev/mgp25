@@ -35,7 +35,20 @@ class Timeline extends RequestCollection
         $photoFilename,
         array $externalMetadata = [])
     {
-        return $this->ig->internal->uploadSinglePhoto(Constants::FEED_TIMELINE, $photoFilename, null, $externalMetadata);
+        // TODO: POST https://i.instagram.com/api/v1/creatives/face_models/
+        // TODO: GET https://i.instagram.com/api/v1/creatives/segmentation_models/
+        // TODO: POST https://i.instagram.com/api/v1/creatives/segmentation_models/
+        // TODO: POST https://i.instagram.com/api/v1/creatives/camera_models/
+        // TODO: POST https://i.instagram.com/api/v1/creatives/camera_effects_graphql/
+        // TODO: POST https://i.instagram.com/api/v1/creatives/update_effect_seen_state/
+        // TODO: GET https://i.instagram.com/api/v1/ig_fb_xposting/account_linking/user_xposting_destination/?signed_body=SIGNATURE.%7B%7D
+
+        $uploadResponse = $this->ig->internal->uploadSinglePhoto(Constants::FEED_TIMELINE, $photoFilename, $internalMetadata, $externalMetadata);
+
+        // Configure the uploaded image and attach it to our timeline/story.
+        $configure = $this->ig->internal->configureSinglePhoto(Constants::FEED_TIMELINE, $internalMetadata, $externalMetadata);
+
+        return $configure;
     }
 
     /**

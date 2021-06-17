@@ -1512,4 +1512,22 @@ class Utils
 
         return $urls;
     }
+
+    public static function generateEncPassword(
+        $password,
+        $publicKey,
+        $keyId,
+        $version)
+	{
+		$time = time();
+		$key  = \openssl_random_pseudo_bytes(32); //'8dd9aad29d9a614c338cff479f850d3e';
+		$iv   = \openssl_random_pseudo_bytes(12); //'8dd9aad29d9a';
+
+		$aesEncrypted = \openssl_encrypt($password, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, strval($time));
+		$encryptedKey = \sodium_crypto_box_seal($key, hex2bin($publicKey));
+
+		$encrypted = base64_encode("\x01" | pack('n', intval($keyId)) . pack('s', strlen($encryptedKey)) . $encryptedKey . $tag . $aesEncrypted);
+
+		return '#PWD_INSTAGRAM_BROWSER:' . $version . ':' . $time . ':' . $encrypted;
+	}
 }

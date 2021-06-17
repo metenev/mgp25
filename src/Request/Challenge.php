@@ -75,9 +75,10 @@ class Challenge extends RequestCollection
      * @throws \InstagramAPI\Exception\InstagramException
      */
     public function confirmIdentityChallenge(
-        $apiPath)
+        $apiPath,
+        $choice)
     {
-        return $this->setVerifyMethod($apiPath, 0);
+        return $this->setVerifyMethod($apiPath, $choice);
     }
 
     /**
@@ -179,6 +180,7 @@ class Challenge extends RequestCollection
     public function agreeConsentFirstStep()
     {
         return $this->buildRequest('consent/existing_user_flow/', [ 'guid', 'device_id' ])
+            ->addPost('_uid', $this->ig->account_id)
             // ->getResponse(new Response\GenericResponse());
 			->getDecodedResponse(true);
     }
@@ -193,6 +195,8 @@ class Challenge extends RequestCollection
     public function agreeConsentSecondStep()
     {
         return $this->buildRequest('consent/existing_user_flow/', [ 'guid', 'device_id' ])
+            ->addPost('current_screen_key', 'qp_intro')
+            ->addPost('updates','{"existing_user_intro_state":"2"}')
             ->addPost('_uid', $this->ig->account_id)
             // ->getResponse(new Response\GenericResponse());
 			->getDecodedResponse(true);
@@ -207,7 +211,7 @@ class Challenge extends RequestCollection
      */
     public function agreeConsentThirdStep()
     {
-        return $this->ig->request('consent/existing_user_flow/', [ 'guid', 'device_id' ])
+        return $this->buildRequest('consent/existing_user_flow/', [ 'guid', 'device_id' ])
             ->setNeedsAuth(false)
             ->addPost('current_screen_key', 'tos_and_two_age_button')
             ->addPost('updates', '{"tos_data_policy_consent_state":"2","age_consent_state":"2"}')
@@ -481,34 +485,34 @@ class Challenge extends RequestCollection
                 
     //         return $request;
     // }
-    // public function WebCheckpointGrecaptcha ($gRecaptchaResponse, $checkpoint_url)
-    // {
-    //     $useragent=$this->ig->device->getUserAgent();
-    //     $new_useragent='Mozilla/5.0 (Linux; Android 8.0.0; Custom Phone Build/OPR6.170623.017; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.125 Mobile Safari/537.36'.$useragent;
-    //     $setuseragent = $this->ig->client->setUserAgent($new_useragent);
-    //     if ($checkpoint_url{0}=='/')
-    //         {
-    //             $checkpoint_url=substr($checkpoint_url,1); 
-    //         }
-    //     //	inlog ('$this->ig->account_id '.$this->ig->account_id);
-    //     $request= $this->ig->request($checkpoint_url)
-    //             ->setVersion(3)
-    //             ->setNeedsAuth(false)
-    //             ->setSignedPost(false)
-    //             ->addHeader('Referer', 'https://i.instagram.com'.$checkpoint_url)
-    //             ->addHeader('X-Requested-With', 'XMLHttpRequest')
-    //             ->addHeader('X-CSRFToken', $this->ig->client->getToken())
-    //             ->addHeader('X-IG-WWW-Claim', '0')
-    //             ->addHeader('X-IG-App-ID', '1217981644879628')
-    //             ->addPost('g-recaptcha-response', $gRecaptchaResponse)
-    // //          ->getResponse(new Response\GenericResponse());
-    //             ->getRawResponse();
-    // //			->getDecodedResponse(true);
-        
-    //             $setuseragent = $this->ig->client->setUserAgent($useragent);
-                
-    //         return $request;
-    // }
+
+    public function webSubmitRecaptcha(
+        $checkpointUrl,
+        $recaptchaResponse)
+    {
+        $userAgent = $this->ig->device->getUserAgent();
+
+        $newUserAgent = $this->getWebUserAgent($userAgent);
+        $this->ig->client->setUserAgent($newUserAgent);
+
+        $response = $this->ig->request(ltrim($checkpointUrl, '/'))
+            ->setVersion(3)
+            ->setNeedsAuth(false)
+            ->setSignedPost(false)
+            ->addHeader('Referer', 'https://i.instagram.com'.$checkpointUrl)
+            ->addHeader('X-Requested-With', 'XMLHttpRequest')
+            ->addHeader('X-CSRFToken', $this->ig->client->getToken())
+            ->addHeader('X-IG-WWW-Claim', '0')
+            ->addHeader('X-IG-App-ID', '1217981644879628')
+            ->addPost('g-recaptcha-response', $recaptchaResponse)
+            // ->getResponse(new Response\GenericResponse());
+            ->getRawResponse();
+            // ->getDecodedResponse(true);
+
+        $this->ig->client->setUserAgent($userAgent);
+
+        return $response;
+    }
 
     /**
      * When Instagram requires to reset a password - send the new one.

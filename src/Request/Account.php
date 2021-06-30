@@ -5,6 +5,7 @@ namespace InstagramAPI\Request;
 use InstagramAPI\Constants;
 use InstagramAPI\Exception\InternalException;
 use InstagramAPI\Exception\SettingsException;
+use InstagramAPI\Request\Metadata\Internal as InternalMetadata;
 use InstagramAPI\Response;
 
 /**
@@ -172,7 +173,8 @@ class Account extends RequestCollection
      * @return \InstagramAPI\Response\UserInfoResponse
      */
     public function changeProfilePicture(
-        $photoFilename)
+        $photoFilename,
+        InternalMetadata &$internalMetadata = null)
     {
         // We must mark the profile for editing before doing the main request.
         $userResponse = $this->ig->request('accounts/current_user/')
@@ -186,7 +188,7 @@ class Account extends RequestCollection
         }
 
         // Then we need to upload photo and get an upload ID
-        $uploadResponse = $this->ig->internal->uploadSinglePhoto(Constants::FEED_TIMELINE, $photoFilename);
+        $uploadResponse = $this->ig->internal->uploadSinglePhoto(Constants::FEED_TIMELINE, $photoFilename, $internalMetadata);
 
         return $this->ig->request('accounts/change_profile_picture/')
             ->addPost('_csrftoken', $this->ig->client->getToken())
